@@ -1,6 +1,6 @@
 // global variables
 let camera, scene, renderer;
-let floor, geometry, material, mesh, floorMesh, light, axes;
+let floor, geometry, material, object, floorMesh, light, axes;
 let gui;
 let stats;
 
@@ -48,7 +48,7 @@ const init = () => {
 
   // Create Main Object
   geometry = new THREE.BoxBufferGeometry(0.4, 0.4, 0.4);
-  material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+  material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
   object = new THREE.Mesh(geometry, material);
   object.castShadow = true;
   object.receiveShadow = false;
@@ -78,7 +78,7 @@ const init = () => {
   scene.add(axes);
 
   // Create Statistic fps Frame
-  const stats = new Stats();
+  stats = new Stats();
   document.body.appendChild(stats.dom);
 
   // Render Canvas Element
@@ -87,8 +87,6 @@ const init = () => {
 
   renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
-
-  renderer.render(scene, camera);
 };
 
 const onWindowResize = () => {
@@ -98,4 +96,40 @@ const onWindowResize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
+const render = () => {
+  requestAnimationFrame(render);
+
+  if (settings["common"].autorotate === true) {
+    object.rotation.x += 0.02;
+    object.rotation.y += 0.02;
+    console.log(object.rotation.x);
+  }
+
+  if (settings["light"].autorotate === true) {
+    alpha = Math.PI * 0.01 + alpha;
+    let new_x = Math.sin(alpha);
+    let new_z = Math.cos(alpha);
+
+    light.position.set(new_x, 1, new_z);
+    if (alpha == 2 * Math.PI) alpha = 0;
+  }
+
+  renderer.render(scene, camera);
+  stats.update();
+};
+
+function Cockpit() {
+  gui = new dat.GUI();
+  h = gui.addFolder("Common");
+  h.add(settings["common"], "scale", 0.1, 2, 0.1).onChange(function () {
+    object.scale.set(
+      settings["common"].scale,
+      settings["common"].scale,
+      settings["common"].scale
+    );
+  });
+}
+
 init();
+render();
+Cockpit();

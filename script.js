@@ -14,10 +14,10 @@ let alpha = 0;
 
 // gui settings
 const settings = {
-  common: {
+  display: {
     scale: 1,
-    autorotate: true,
-    showaxes: true,
+    autoRotate: true,
+    showAxes: true,
   },
   geometry: {
     shape: "cube",
@@ -25,9 +25,9 @@ const settings = {
   },
   light: {
     enable: true,
-    autorotate: false,
+    autoRotate: false,
     shadow: true,
-    automove: false,
+    autoMove: false,
     luminance: 4,
   },
   affine: {
@@ -47,7 +47,7 @@ const init = () => {
   scene = new THREE.Scene();
 
   // Create Main Object
-  geometry = new THREE.BoxBufferGeometry(0.4, 0.4, 0.4);
+  geometry = new THREE.BoxBufferGeometry(1, 1, 1);
   material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
   object = new THREE.Mesh(geometry, material);
   object.castShadow = true;
@@ -61,11 +61,11 @@ const init = () => {
   floorMesh.receiveShadow = true;
   floorMesh.rotation.x = -Math.PI / 2.0;
   floorMesh.name = "floor";
-  floorMesh.position.set(0, -0.6, 0);
+  floorMesh.position.set(0, -1.2, 0);
 
   // light
-  light = new THREE.PointLight(0xffffff, 2, 100);
-  light.position.set(0, 1, 0);
+  light = new THREE.PointLight(0xffffff, 4, 200);
+  light.position.set(0, 4, 0);
   light.castShadow = true;
 
   // axesHelper
@@ -99,13 +99,13 @@ const onWindowResize = () => {
 const render = () => {
   requestAnimationFrame(render);
 
-  if (settings["common"].autorotate === true) {
+  if (settings["display"].autoRotate === true) {
     object.rotation.x += 0.02;
     object.rotation.y += 0.02;
     console.log(object.rotation.x);
   }
 
-  if (settings["light"].autorotate === true) {
+  if (settings["light"].autoRotate === true) {
     alpha = Math.PI * 0.01 + alpha;
     let new_x = Math.sin(alpha);
     let new_z = Math.cos(alpha);
@@ -118,18 +118,35 @@ const render = () => {
   stats.update();
 };
 
-function Cockpit() {
+const Cockpit = () => {
+  // Init Control Table
   gui = new dat.GUI();
-  h = gui.addFolder("Common");
-  h.add(settings["common"], "scale", 0.1, 2, 0.1).onChange(function () {
+
+  // 1/ Display Control (Scale - Show Axes - Auto Rotate)
+  h = gui.addFolder("display");
+  h.add(settings["display"], "scale", 0.1, 3, 0.05).onChange(() => {
     object.scale.set(
-      settings["common"].scale,
-      settings["common"].scale,
-      settings["common"].scale
+      settings["display"].scale,
+      settings["display"].scale,
+      settings["display"].scale
     );
   });
-}
 
-init();
-render();
-Cockpit();
+  h.add(settings["display"], "showAxes").onChange(() => {
+    axes.visible = !settings["display"]["showAxes"];
+  });
+
+  h.add(settings["display"], "autoRotate").onChange(() => {
+    axes.visible = !settings["display"]["showAxes"];
+  });
+
+  // 2/ Geometry Selection
+};
+
+const main = () => {
+  init();
+  render();
+  Cockpit();
+};
+
+main();

@@ -81,31 +81,12 @@ const init = () => {
   const stats = new Stats();
   document.body.appendChild(stats.dom);
 
+  // Render Canvas Element
   const canvas = document.querySelector("#canvas");
   renderer = new THREE.WebGLRenderer({ canvas });
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  // controls
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.maxPolarAngle = Math.PI * 1;
-  controls.minDistance = 1;
-  controls.maxDistance = 10;
-
-  // afControl = new THREE.TransformControls(camera, renderer.domElement);
-  // afControl.addEventListener("change", function () {
-  //   renderer.render(scene, camera);
-  // });
-  // afControl.addEventListener("dragging-changed", function (event) {
-  //   controls.enabled = !event.value;
-  // });
-
-  // afControl.attach(mesh);
-  // scene.add(afControl);
-  window.addEventListener("resize", onWindowResize, false);
 
   renderer.render(scene, camera);
 };

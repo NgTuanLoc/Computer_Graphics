@@ -102,7 +102,6 @@ const render = () => {
   if (settings["display"].autoRotate === true) {
     object.rotation.x += 0.02;
     object.rotation.y += 0.02;
-    console.log(object.rotation.x);
   }
 
   if (settings["light"].autoRotate === true) {
@@ -123,8 +122,8 @@ const Cockpit = () => {
   gui = new dat.GUI();
 
   // 1/ Display Control (Scale - Show Axes - Auto Rotate)
-  h = gui.addFolder("display");
-  h.add(settings["display"], "scale", 0.1, 3, 0.05).onChange(() => {
+  control = gui.addFolder("Display");
+  control.add(settings["display"], "scale", 0.1, 3, 0.05).onChange(() => {
     object.scale.set(
       settings["display"].scale,
       settings["display"].scale,
@@ -132,16 +131,35 @@ const Cockpit = () => {
     );
   });
 
-  h.add(settings["display"], "showAxes").onChange(() => {
-    axes.visible = !settings["display"]["showAxes"];
+  control.add(settings["display"], "showAxes").onChange(function () {
+    axes.visible = !!settings["display"].showAxes;
   });
 
-  h.add(settings["display"], "autoRotate").onChange(() => {
-    axes.visible = !settings["display"]["showAxes"];
-  });
+  control.add(settings["display"], "autoRotate");
 
-  // 2/ Geometry Selection
+  // 2/ Geometry, Materials Selection
+  control = gui.addFolder("Geometry");
+  control
+    .add(settings["geometry"], "shape", [
+      "cube",
+      "sphere",
+      "cone",
+      "cylinder",
+      "wheel",
+      "teapot",
+    ])
+    .onChange(handleGeometry);
+
+  control
+    .add(settings["geometry"], "material", ["basic", "Point", "Lines", "Solid"])
+    .onChange(handleMaterial);
 };
+
+// Cube, Sphere, Cone, Cylinder, Wheel, Teapot
+const handleGeometry = () => {};
+
+// Point, Lines, Solid
+const handleMaterial = () => {};
 
 const main = () => {
   init();

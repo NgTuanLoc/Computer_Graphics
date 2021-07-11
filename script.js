@@ -214,14 +214,21 @@ const handleGeometry = () => {
 const handleMaterial = () => {
   switch (settings["geometry"].material) {
     case "basic":
-      material = new THREE.MeshBasicMaterial({ color: 0x222222 });
+      material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+      break;
+    case "point":
+      material = new THREE.PointsMaterial({ color: 0x0000ff });
       break;
     case "lines":
-      material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+      material = new THREE.MeshNormalMaterial();
+      material.wireframe = true;
+      break;
+    case "solid":
+      material = new THREE.MeshNormalMaterial();
       material.wireframe = true;
       break;
   }
-  updateObject(object, material);
+  updateObject(geometry, material);
 };
 
 // Utilities (clearObject, updateObject)
@@ -232,15 +239,14 @@ const clearObject = () => {
 };
 
 const updateObject = (newShape, newMaterial) => {
-  console.log(object);
   clearObject();
+
   object = new THREE.Mesh(newShape, newMaterial);
-  if ((settings["light"].shadow = true)) {
+  if (settings["light"].shadow === true) {
     object.castShadow = true;
     object.receiveShadow = false;
   }
   object.name = "object";
-  console.log(object);
   scene.add(object);
 };
 

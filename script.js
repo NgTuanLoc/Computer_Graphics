@@ -1,18 +1,18 @@
-// global variables
+// Global Variables
 let camera, scene, renderer;
 let floor, geometry, material, object, floorMesh, light, axes;
 let gui;
 let stats;
 
-// controls
+// Controls
 let obControl, afControl;
 
-// rotation values
+// Rotation Values
 let rot_x = 0.01;
 let rot_y = 0.02;
 let alpha = 0;
 
-// gui settings
+// Settings
 const settings = {
   display: {
     scale: 1,
@@ -22,6 +22,14 @@ const settings = {
   geometry: {
     shape: "cube",
     material: "basic",
+  },
+  camera: {
+    x: 0,
+    y: 0,
+    z: 4,
+    fov: 80,
+    near: 0.01,
+    far: 3,
   },
   light: {
     enable: true,
@@ -40,8 +48,8 @@ const init = () => {
   camera = new THREE.PerspectiveCamera(
     80,
     window.innerWidth / window.innerHeight,
-    0.01,
-    1000
+    0.1,
+    10
   );
   camera.position.set(0, 0, 4);
   scene = new THREE.Scene();
@@ -172,6 +180,27 @@ const Cockpit = () => {
   control
     .add(settings["geometry"], "material", ["basic", "point", "lines", "solid"])
     .onChange(handleMaterial);
+
+  // 3/ Control Camera: x, y, z, field of view, near, far
+  control = gui.addFolder("Camera");
+  control.add(settings["camera"], "x", -10, 10, 0.05).onChange(() => {
+    camera.position.x = settings["camera"].x;
+  });
+  control.add(settings["camera"], "y", -10, 10, 0.05).onChange(() => {
+    camera.position.y = settings["camera"].y;
+  });
+  control.add(settings["camera"], "z", -10, 10, 0.05).onChange(() => {
+    camera.position.z = settings["camera"].z;
+  });
+  control.add(camera, "fov", 1, 180, 0.1).onChange(() => {
+    camera.updateProjectionMatrix();
+  });
+  control.add(camera, "near", 0.1, 10, 0.1).onChange(() => {
+    camera.updateProjectionMatrix();
+  });
+  control.add(camera, "far", 0.1, 10, 0.1).onChange(() => {
+    camera.updateProjectionMatrix();
+  });
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot

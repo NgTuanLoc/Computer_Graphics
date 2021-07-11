@@ -61,12 +61,12 @@ const init = () => {
   floorMesh.receiveShadow = true;
   floorMesh.rotation.x = -Math.PI / 2.0;
   floorMesh.name = "floor";
-  floorMesh.position.set(0, -1.2, 0);
+  floorMesh.position.set(0, -1.5, 0);
 
   // light
   light = new THREE.PointLight(0xffffff, 4, 200);
   light.name = "light";
-  light.position.set(0, 4, 0);
+  light.position.set(3, 4, 0);
   light.castShadow = true;
 
   // axesHelper
@@ -89,6 +89,23 @@ const init = () => {
 
   renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
+  // controls
+  let controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.maxPolarAngle = Math.PI * 1;
+  controls.minDistance = 1;
+  controls.maxDistance = 10;
+
+  afControl = new THREE.TransformControls(camera, renderer.domElement);
+  afControl.addEventListener("change", function () {
+    renderer.render(scene, camera);
+  });
+  afControl.addEventListener("dragging-changed", function (event) {
+    controls.enabled = !event.value;
+  });
+
+  //afControl.attach(mesh);
+  scene.add(afControl);
+  window.addEventListener("resize", onWindowResize, false);
 };
 
 const onWindowResize = () => {
@@ -153,11 +170,11 @@ const Cockpit = () => {
     .onChange(handleGeometry);
 
   control
-    .add(settings["geometry"], "material", ["basic", "Point", "Lines", "Solid"])
+    .add(settings["geometry"], "material", ["basic", "point", "lines", "solid"])
     .onChange(handleMaterial);
 };
 
-// Cube, Sphere, Cone, Cylinder, Wheel, Teapot
+// Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot
 const handleGeometry = () => {
   switch (settings["geometry"].shape) {
     case "cube":
@@ -167,7 +184,7 @@ const handleGeometry = () => {
       geometry = new THREE.SphereBufferGeometry(1, 100, 100);
       break;
     case "cone":
-      geometry = new THREE.ConeBufferGeometry(0.4, 0.4, 20, 20);
+      geometry = new THREE.ConeBufferGeometry(1, 1, 20, 20);
       break;
     case "cylinder":
       geometry = new THREE.CylinderBufferGeometry(1, 1, 1.5, 20, 20);
@@ -193,8 +210,19 @@ const handleGeometry = () => {
   updateObject(geometry, material);
 };
 
-// Point, Lines, Solid
-const handleMaterial = () => {};
+// Material: Point, Lines, Solid
+const handleMaterial = () => {
+  switch (settings["geometry"].material) {
+    case "basic":
+      material = new THREE.MeshBasicMaterial({ color: 0x222222 });
+      break;
+    case "lines":
+      material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+      material.wireframe = true;
+      break;
+  }
+  updateObject(object, material);
+};
 
 // Utilities (clearObject, updateObject)
 const clearObject = () => {
@@ -203,17 +231,20 @@ const clearObject = () => {
   );
 };
 
-const updateObject = (newObject, newMaterial) => {
+const updateObject = (newShape, newMaterial) => {
+  console.log(object);
   clearObject();
-  object = new THREE.Mesh(newObject, newMaterial);
+  object = new THREE.Mesh(newShape, newMaterial);
   if ((settings["light"].shadow = true)) {
     object.castShadow = true;
     object.receiveShadow = false;
   }
   object.name = "object";
+  console.log(object);
   scene.add(object);
 };
 
+// Main
 const main = () => {
   init();
   render();

@@ -65,11 +65,13 @@ const init = () => {
 
   // light
   light = new THREE.PointLight(0xffffff, 4, 200);
+  light.name = "light";
   light.position.set(0, 4, 0);
   light.castShadow = true;
 
   // axesHelper
   axes = new THREE.GridHelper(100, 2);
+  axes.name = "axes";
 
   // Add Object to Scene
   scene.add(object);
@@ -156,10 +158,61 @@ const Cockpit = () => {
 };
 
 // Cube, Sphere, Cone, Cylinder, Wheel, Teapot
-const handleGeometry = () => {};
+const handleGeometry = () => {
+  switch (settings["geometry"].shape) {
+    case "cube":
+      geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+      break;
+    case "sphere":
+      geometry = new THREE.SphereBufferGeometry(1, 100, 100);
+      break;
+    case "cone":
+      geometry = new THREE.ConeBufferGeometry(0.4, 0.4, 20, 20);
+      break;
+    case "cylinder":
+      geometry = new THREE.CylinderBufferGeometry(1, 1, 1.5, 20, 20);
+      break;
+    case "wheel":
+      geometry = new THREE.TorusBufferGeometry(1, 0.5, 20, 20);
+      break;
+    case "teapot":
+      geometry = new THREE.TeapotBufferGeometry(
+        1,
+        true,
+        true,
+        true,
+        true,
+        true
+      );
+      break;
+
+    default:
+      geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+      break;
+  }
+  updateObject(geometry, material);
+};
 
 // Point, Lines, Solid
 const handleMaterial = () => {};
+
+// Utilities (clearObject, updateObject)
+const clearObject = () => {
+  scene.children = scene.children.filter(
+    (element) => element.name !== "object"
+  );
+};
+
+const updateObject = (newObject, newMaterial) => {
+  clearObject();
+  object = new THREE.Mesh(newObject, newMaterial);
+  if ((settings["light"].shadow = true)) {
+    object.castShadow = true;
+    object.receiveShadow = false;
+  }
+  object.name = "object";
+  scene.add(object);
+};
 
 const main = () => {
   init();

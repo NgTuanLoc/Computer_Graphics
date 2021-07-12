@@ -1,6 +1,6 @@
 // Global Variables
 let camera, scene, renderer;
-let floor, geometry, material, object, floorMesh, light, axes;
+let floor, geometry, material, object, floorMesh, light, axes, texture;
 let gui;
 let stats;
 
@@ -71,7 +71,7 @@ const init = () => {
   floorMesh.receiveShadow = true;
   floorMesh.rotation.x = -Math.PI / 2.0;
   floorMesh.name = "floor";
-  floorMesh.position.set(0, -1.5, 0);
+  floorMesh.position.set(0, -2.5, 0);
 
   // light
   light = new THREE.PointLight(0xffffff, 4, 200);
@@ -183,7 +183,15 @@ const Cockpit = () => {
     .onChange(handleGeometry);
 
   control
-    .add(settings["geometry"], "material", ["basic", "point", "lines", "solid"])
+    .add(settings["geometry"], "material", [
+      "basic",
+      "point",
+      "lines",
+      "solid",
+      "pink",
+      "yellow",
+      "purple",
+    ])
     .onChange(handleMaterial);
 
   // 3/ Camera Control: x, y, z, field of view, near, far
@@ -283,7 +291,24 @@ const handleMaterial = () => {
       break;
     case "solid":
       material = new THREE.MeshNormalMaterial();
-      material.wireframe = true;
+      break;
+    case "pink":
+      texture = new THREE.TextureLoader();
+      material = new THREE.MeshBasicMaterial({
+        map: texture.load("./texutres/pink-flower.jpg"),
+      });
+      break;
+    case "yellow":
+      texture = new THREE.TextureLoader();
+      material = new THREE.MeshBasicMaterial({
+        map: texture.load("./texutres/yellow-flower.jpg"),
+      });
+      break;
+    case "purple":
+      texture = new THREE.TextureLoader();
+      material = new THREE.MeshBasicMaterial({
+        map: texture.load("./texutres/purple-flower.jpg"),
+      });
       break;
   }
   updateObject(geometry, material);

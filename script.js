@@ -201,6 +201,12 @@ const Cockpit = () => {
   control.add(camera, "far", 0.1, 10, 0.1).onChange(() => {
     camera.updateProjectionMatrix();
   });
+
+  // 4/ Affine Transform
+  control = gui.addFolder("Affine Transform");
+  control
+    .add(settings["affine"], "mode", ["none", "translate", "scale", "rotate"])
+    .onChange(handleMaterial);
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot
@@ -260,6 +266,9 @@ const handleMaterial = () => {
   updateObject(geometry, material);
 };
 
+// Affine: Translate, Scale, Rotate
+const handleAffineTransform = () => {};
+
 // Utilities (clearObject, updateObject)
 const clearObject = () => {
   scene.children = scene.children.filter(
@@ -277,6 +286,11 @@ const updateObject = (newShape, newMaterial) => {
   }
   object.name = "object";
   scene.add(object);
+};
+
+const clearAffine = () => {
+  afControl.detach();
+  settings["affine"].mode = "none";
 };
 
 // Main

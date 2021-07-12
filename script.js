@@ -104,10 +104,10 @@ const init = () => {
   controls.maxDistance = 10;
 
   afControl = new THREE.TransformControls(camera, renderer.domElement);
-  afControl.addEventListener("change", function () {
+  afControl.addEventListener("change", () => {
     renderer.render(scene, camera);
   });
-  afControl.addEventListener("dragging-changed", function (event) {
+  afControl.addEventListener("dragging-changed", (event) => {
     controls.enabled = !event.value;
   });
 
@@ -206,7 +206,7 @@ const Cockpit = () => {
   control = gui.addFolder("Affine Transform");
   control
     .add(settings["affine"], "mode", ["none", "translate", "scale", "rotate"])
-    .onChange(handleMaterial);
+    .onChange(handleAffineTransform);
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot
@@ -267,7 +267,28 @@ const handleMaterial = () => {
 };
 
 // Affine: Translate, Scale, Rotate
-const handleAffineTransform = () => {};
+const handleAffineTransform = () => {
+  switch (settings["affine"].mode) {
+    case "none":
+      console.log(settings["affine"]);
+      console.log("detached");
+      afControl.detach();
+      break;
+    case "translate":
+      console.log("translate");
+      afControl.setMode("translate");
+      afControl.attach(object);
+      break;
+    case "rotate":
+      afControl.setMode("rotate");
+      afControl.attach(object);
+      break;
+    case "scale":
+      afControl.setMode("scale");
+      afControl.attach(object);
+      break;
+  }
+};
 
 // Utilities (clearObject, updateObject)
 const clearObject = () => {
@@ -277,6 +298,7 @@ const clearObject = () => {
 };
 
 const updateObject = (newShape, newMaterial) => {
+  clearAffineTransform();
   clearObject();
 
   object = new THREE.Mesh(newShape, newMaterial);
@@ -288,7 +310,7 @@ const updateObject = (newShape, newMaterial) => {
   scene.add(object);
 };
 
-const clearAffine = () => {
+const clearAffineTransform = () => {
   afControl.detach();
   settings["affine"].mode = "none";
 };

@@ -36,7 +36,9 @@ const settings = {
     autoRotate: false,
     shadow: true,
     autoMove: false,
-    luminance: 4,
+    x: 3,
+    y: 4,
+    z: 0,
   },
   affine: {
     mode: "none",
@@ -49,9 +51,9 @@ const init = () => {
     80,
     window.innerWidth / window.innerHeight,
     0.1,
-    10
+    20
   );
-  camera.position.set(0, 0, 4);
+  camera.position.set(0, 2, 10);
   scene = new THREE.Scene();
 
   // Create Main Object
@@ -63,7 +65,7 @@ const init = () => {
   object.name = "object";
 
   // floor
-  floor = new THREE.PlaneBufferGeometry(5, 5, 32, 32);
+  floor = new THREE.PlaneBufferGeometry(15, 15, 32, 32);
   let floorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
   floorMesh = new THREE.Mesh(floor, floorMat);
   floorMesh.receiveShadow = true;
@@ -76,6 +78,9 @@ const init = () => {
   light.name = "light";
   light.position.set(3, 4, 0);
   light.castShadow = true;
+
+  const helper = new THREE.PointLightHelper(light);
+  scene.add(helper);
 
   // axesHelper
   axes = new THREE.GridHelper(100, 2);
@@ -132,11 +137,11 @@ const render = () => {
   }
 
   if (settings["light"].autoRotate === true) {
-    alpha = Math.PI * 0.01 + alpha;
-    let new_x = Math.sin(alpha);
-    let new_z = Math.cos(alpha);
+    alpha = Math.PI * 0.005 + alpha;
+    let new_x = Math.sin(alpha) * 3;
+    let new_z = Math.cos(alpha) * 3;
 
-    light.position.set(new_x, 1, new_z);
+    light.position.set(new_x, light.position.y, new_z);
     if (alpha == 2 * Math.PI) alpha = 0;
   }
 
@@ -158,7 +163,7 @@ const Cockpit = () => {
     );
   });
 
-  control.add(settings["display"], "showAxes").onChange(function () {
+  control.add(settings["display"], "showAxes").onChange(() => {
     axes.visible = !!settings["display"].showAxes;
   });
 
@@ -181,7 +186,7 @@ const Cockpit = () => {
     .add(settings["geometry"], "material", ["basic", "point", "lines", "solid"])
     .onChange(handleMaterial);
 
-  // 3/ Control Camera: x, y, z, field of view, near, far
+  // 3/ Camera Control: x, y, z, field of view, near, far
   control = gui.addFolder("Camera");
   control.add(settings["camera"], "x", -10, 10, 0.05).onChange(() => {
     camera.position.x = settings["camera"].x;
@@ -198,7 +203,7 @@ const Cockpit = () => {
   control.add(camera, "near", 0.1, 10, 0.1).onChange(() => {
     camera.updateProjectionMatrix();
   });
-  control.add(camera, "far", 0.1, 10, 0.1).onChange(() => {
+  control.add(camera, "far", 0.1, 150, 0.1).onChange(() => {
     camera.updateProjectionMatrix();
   });
 
@@ -207,6 +212,24 @@ const Cockpit = () => {
   control
     .add(settings["affine"], "mode", ["none", "translate", "scale", "rotate"])
     .onChange(handleAffineTransform);
+
+  // 5/ Light Control
+  control = gui.addFolder("Light Control");
+  control.add(settings["light"], "enable").onChange(() => {
+    light.visible = !!settings["light"].enable;
+  });
+  control.add(settings["light"], "autoRotate");
+  control.add(light, "decay", 0, 4, 0.01);
+  control.add(light, "power", 0, 150);
+  control.add(settings["light"], "x", -10, 10, 0.1).onChange(() => {
+    light.position.x = settings["light"].x;
+  });
+  control.add(settings["light"], "y", -10, 10, 0.1).onChange(() => {
+    light.position.y = settings["light"].y;
+  });
+  control.add(settings["light"], "z", -10, 10, 0.1).onChange(() => {
+    light.position.z = settings["light"].z;
+  });
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot

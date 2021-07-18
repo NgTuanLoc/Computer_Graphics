@@ -15,7 +15,7 @@ let alpha = 0;
 // Settings
 const settings = {
   display: {
-    scale: 1,
+    scale: 2,
     autoRotate: true,
     showAxes: true,
   },
@@ -57,8 +57,8 @@ const init = () => {
   scene = new THREE.Scene();
 
   // Create Main Object
-  geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-  material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+  geometry = new THREE.BoxBufferGeometry(2, 2, 2);
+  material = new THREE.MeshPhongMaterial({ color: 0xffff });
   object = new THREE.Mesh(geometry, material);
   object.castShadow = true;
   object.receiveShadow = false;
@@ -223,6 +223,7 @@ const Cockpit = () => {
 
   // 5/ Light Control
   control = gui.addFolder("Light Control");
+  control.addColor(new ColorGUIHelper(light, "color"), "value").name("color");
   control.add(settings["light"], "enable").onChange(() => {
     light.visible = !!settings["light"].enable;
   });
@@ -244,16 +245,16 @@ const Cockpit = () => {
 const handleGeometry = () => {
   switch (settings["geometry"].shape) {
     case "cube":
-      geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+      geometry = new THREE.BoxBufferGeometry(2, 2, 2);
       break;
     case "sphere":
-      geometry = new THREE.SphereBufferGeometry(1, 100, 100);
+      geometry = new THREE.SphereBufferGeometry(1.5, 100, 100);
       break;
     case "cone":
-      geometry = new THREE.ConeBufferGeometry(1, 1, 20, 20);
+      geometry = new THREE.ConeBufferGeometry(2, 2, 20, 20);
       break;
     case "cylinder":
-      geometry = new THREE.CylinderBufferGeometry(1, 1, 1.5, 20, 20);
+      geometry = new THREE.CylinderBufferGeometry(1.5, 1.5, 2, 20, 20);
       break;
     case "wheel":
       geometry = new THREE.TorusBufferGeometry(1, 0.5, 20, 20);
@@ -280,10 +281,13 @@ const handleGeometry = () => {
 const handleMaterial = () => {
   switch (settings["geometry"].material) {
     case "basic":
-      material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+      material = new THREE.MeshPhongMaterial({ color: 0xffff });
       break;
     case "point":
-      material = new THREE.PointsMaterial({ color: 0x0000ff });
+      material = new THREE.PointsMaterial({
+        color: 0xffff,
+        size: 0.1,
+      });
       break;
     case "lines":
       material = new THREE.MeshNormalMaterial();
@@ -350,6 +354,9 @@ const updateObject = (newShape, newMaterial) => {
   clearObject();
 
   object = new THREE.Mesh(newShape, newMaterial);
+  if (settings["geometry"].material === "point") {
+    object = new THREE.Points(newShape, newMaterial);
+  }
   if (settings["light"].shadow === true) {
     object.castShadow = true;
     object.receiveShadow = false;
@@ -362,6 +369,19 @@ const clearAffineTransform = () => {
   afControl.detach();
   settings["affine"].mode = "none";
 };
+
+class ColorGUIHelper {
+  constructor(object, prop) {
+    this.object = object;
+    this.prop = prop;
+  }
+  get value() {
+    return `#${this.object[this.prop].getHexString()}`;
+  }
+  set value(hexString) {
+    this.object[this.prop].set(hexString);
+  }
+}
 
 // Main
 const main = () => {

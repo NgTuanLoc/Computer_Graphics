@@ -152,6 +152,9 @@ const render = () => {
 const Cockpit = () => {
   // Init Control Table
   gui = new dat.GUI();
+  const placeHolder = {
+    textField: "Image URL ",
+  };
 
   // 1/ Display Control (Scale - Show Axes - Auto Rotate)
   control = gui.addFolder("Display");
@@ -193,6 +196,18 @@ const Cockpit = () => {
       "purple",
     ])
     .onChange(handleMaterial);
+
+  control.add(placeHolder, "textField").onFinishChange((value) => {
+    const loader = new THREE.TextureLoader();
+    loader.crossOrigin = "Anonymous";
+    texture = loader.load(String(value));
+    console.log(value);
+    material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+    material.needsUpdate = true;
+    updateObject(geometry, material);
+  });
 
   // 3/ Camera Control: x, y, z, field of view, near, far
   control = gui.addFolder("Camera");
@@ -271,7 +286,7 @@ const handleGeometry = () => {
       break;
 
     default:
-      geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+      geometry = new THREE.BoxBufferGeometry(2, 2, 2);
       break;
   }
   updateObject(geometry, material);

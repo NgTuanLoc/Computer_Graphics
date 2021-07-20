@@ -12,6 +12,12 @@ let rot_x = 0.01;
 let rot_y = 0.02;
 let alpha = 0;
 
+// Animation
+// 1/ Bounce
+let clock = new THREE.Clock();
+let time = 0;
+let delta = 0;
+
 // Settings
 const settings = {
   display: {
@@ -43,6 +49,10 @@ const settings = {
   affine: {
     mode: "none",
   },
+  animation: {
+    type: "none",
+    value: 2,
+  },
 };
 
 const init = () => {
@@ -71,12 +81,12 @@ const init = () => {
   floorMesh.receiveShadow = true;
   floorMesh.rotation.x = -Math.PI / 2.0;
   floorMesh.name = "floor";
-  floorMesh.position.set(0, -2.5, 0);
+  floorMesh.position.set(0, -4, 0);
 
   // light
   light = new THREE.PointLight(0xffffff, 4, 200);
   light.name = "light";
-  light.position.set(3, 4, 0);
+  light.position.set(3, 5, 0);
   light.castShadow = true;
 
   const helper = new THREE.PointLightHelper(light);
@@ -145,8 +155,29 @@ const render = () => {
     if (alpha == 2 * Math.PI) alpha = 0;
   }
 
-  renderer.render(scene, camera);
-  stats.update();
+  if (settings["animation"].type === "bounce") {
+    delta = clock.getDelta();
+    time += delta;
+    object.rotation.x = time * 4;
+    object.position.y =
+      2 +
+      floorMesh.position.y +
+      settings["animation"].value +
+      Math.abs(Math.sin(time * 3)) * 2;
+    object.position.z = Math.cos(time) * 4;
+    renderer.render(scene, camera);
+    stats.update();
+  } else if (settings["animation"].type === "circle") {
+    delta = clock.getDelta();
+    time += delta;
+    object.position.x = settings["animation"].value * Math.cos(time) + 0;
+    object.position.z = settings["animation"].value * Math.sin(time) + 0;
+    renderer.render(scene, camera);
+    stats.update();
+  } else {
+    renderer.render(scene, camera);
+    stats.update();
+  }
 };
 
 const Cockpit = () => {
@@ -254,6 +285,10 @@ const Cockpit = () => {
   control.add(settings["light"], "z", -10, 10, 0.1).onChange(() => {
     light.position.z = settings["light"].z;
   });
+
+  control = gui.addFolder("Animation");
+  control.add(settings["animation"], "type", ["bounce", "circle"]);
+  control.add(settings["animation"], "value", -10, 10, 0.1);
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot

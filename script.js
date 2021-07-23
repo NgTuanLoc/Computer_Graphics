@@ -309,6 +309,29 @@ const Cockpit = () => {
   control
     .add(settings["bonus"].textGeometry, "curveSegments", -5, 5, 0.1)
     .onChange(textGeometryGenerate);
+  control
+    .add(settings["geometry"], "material", [
+      "basic",
+      "point",
+      "lines",
+      "solid",
+      // "pink",
+      // "yellow",
+      // "purple",
+    ])
+    .onChange(handleMaterial);
+
+  control.add(placeHolder, "textField").onFinishChange((value) => {
+    const loader = new THREE.TextureLoader();
+    loader.crossOrigin = "Anonymous";
+    texture = loader.load(String(value));
+    console.log(value);
+    material = new THREE.MeshBasicMaterial({
+      map: texture,
+    });
+    material.needsUpdate = true;
+    updateObject(geometry, material);
+  });
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot

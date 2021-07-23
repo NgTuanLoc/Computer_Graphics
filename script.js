@@ -385,6 +385,7 @@ const handleMaterial = () => {
       });
       break;
   }
+  geometry.center();
   updateObject(geometry, material);
 };
 

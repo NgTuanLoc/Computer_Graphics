@@ -222,9 +222,9 @@ const Cockpit = () => {
       "point",
       "lines",
       "solid",
-      "pink",
-      "yellow",
-      "purple",
+      // "pink",
+      // "yellow",
+      // "purple",
     ])
     .onChange(handleMaterial);
 

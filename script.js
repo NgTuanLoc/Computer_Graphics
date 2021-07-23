@@ -22,7 +22,7 @@ let delta = 0;
 const settings = {
   display: {
     scale: 2,
-    autoRotate: true,
+    autoRotate: false,
     showAxes: true,
   },
   geometry: {
@@ -31,8 +31,8 @@ const settings = {
   },
   camera: {
     x: 0,
-    y: 0,
-    z: 4,
+    y: 4,
+    z: 17,
     fov: 80,
     near: 0.01,
     far: 3,
@@ -53,6 +53,14 @@ const settings = {
     type: "none",
     value: 2,
   },
+  bonus: {
+    text: "Hello World",
+    textGeometry: {
+      size: 1,
+      height: 0.1,
+      curveSegments: 1,
+    },
+  },
 };
 
 const init = () => {
@@ -63,7 +71,7 @@ const init = () => {
     0.1,
     20
   );
-  camera.position.set(0, 2, 10);
+  camera.position.set(0, 4, 17);
   scene = new THREE.Scene();
 
   // Create Main Object
@@ -75,18 +83,18 @@ const init = () => {
   object.name = "object";
 
   // floor
-  floor = new THREE.PlaneBufferGeometry(15, 15, 32, 32);
+  floor = new THREE.PlaneBufferGeometry(32, 32, 32, 32);
   let floorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
   floorMesh = new THREE.Mesh(floor, floorMat);
   floorMesh.receiveShadow = true;
   floorMesh.rotation.x = -Math.PI / 2.0;
   floorMesh.name = "floor";
-  floorMesh.position.set(0, -4, 0);
+  floorMesh.position.set(0, -5, 0);
 
   // light
   light = new THREE.PointLight(0xffffff, 4, 200);
   light.name = "light";
-  light.position.set(3, 5, 0);
+  light.position.set(-4, 4, 3.4);
   light.castShadow = true;
 
   const helper = new THREE.PointLightHelper(light);
@@ -189,7 +197,7 @@ const Cockpit = () => {
 
   // 1/ Display Control (Scale - Show Axes - Auto Rotate)
   control = gui.addFolder("Display");
-  control.add(settings["display"], "scale", 0.1, 3, 0.05).onChange(() => {
+  control.add(settings["display"], "scale", 0.1, 4, 0.05).onChange(() => {
     object.scale.set(
       settings["display"].scale,
       settings["display"].scale,
@@ -242,13 +250,13 @@ const Cockpit = () => {
 
   // 3/ Camera Control: x, y, z, field of view, near, far
   control = gui.addFolder("Camera");
-  control.add(settings["camera"], "x", -10, 10, 0.05).onChange(() => {
+  control.add(settings["camera"], "x", -50, 50, 0.05).onChange(() => {
     camera.position.x = settings["camera"].x;
   });
-  control.add(settings["camera"], "y", -10, 10, 0.05).onChange(() => {
+  control.add(settings["camera"], "y", -50, 50, 0.05).onChange(() => {
     camera.position.y = settings["camera"].y;
   });
-  control.add(settings["camera"], "z", -10, 10, 0.05).onChange(() => {
+  control.add(settings["camera"], "z", -50, 50, 0.05).onChange(() => {
     camera.position.z = settings["camera"].z;
   });
   control.add(camera, "fov", 1, 180, 0.1).onChange(() => {
@@ -276,19 +284,31 @@ const Cockpit = () => {
   control.add(settings["light"], "autoRotate");
   control.add(light, "decay", 0, 4, 0.01);
   control.add(light, "power", 0, 150);
-  control.add(settings["light"], "x", -10, 10, 0.1).onChange(() => {
+  control.add(settings["light"], "x", -50, 50, 0.1).onChange(() => {
     light.position.x = settings["light"].x;
   });
-  control.add(settings["light"], "y", -10, 10, 0.1).onChange(() => {
+  control.add(settings["light"], "y", -50, 50, 0.1).onChange(() => {
     light.position.y = settings["light"].y;
   });
-  control.add(settings["light"], "z", -10, 10, 0.1).onChange(() => {
+  control.add(settings["light"], "z", -50, 50, 0.1).onChange(() => {
     light.position.z = settings["light"].z;
   });
 
   control = gui.addFolder("Animation");
   control.add(settings["animation"], "type", ["bounce", "circle"]);
   control.add(settings["animation"], "value", -10, 10, 0.1);
+
+  control = gui.addFolder("Bonus");
+  control.add(settings["bonus"], "text").onChange(textGeometryGenerate);
+  control
+    .add(settings["bonus"].textGeometry, "size", -5, 5, 0.1)
+    .onChange(textGeometryGenerate);
+  control
+    .add(settings["bonus"].textGeometry, "height", -5, 5, 0.1)
+    .onChange(textGeometryGenerate);
+  control
+    .add(settings["bonus"].textGeometry, "curveSegments", -5, 5, 0.1)
+    .onChange(textGeometryGenerate);
 };
 
 // Geometry: Cube, Sphere, Cone, Cylinder, Wheel, Teapot
@@ -390,6 +410,21 @@ const handleAffineTransform = () => {
       afControl.attach(object);
       break;
   }
+};
+
+// Bonus
+const textGeometryGenerate = () => {
+  const loader = new THREE.FontLoader();
+
+  loader.load("fonts/helvetiker_regular.typeface.json", (font) => {
+    geometry = new THREE.TextGeometry(settings["bonus"].text, {
+      font: font,
+      ...settings["bonus"].textGeometry,
+    });
+  });
+  console.log(geometry);
+  geometry.center();
+  updateObject(geometry, material);
 };
 
 // Utilities (clearObject, updateObject)
